@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إحسان - نظام إلكتروني متكامل لإدارة الجمعيات</title>
+    <title>إحسان - منظومة إدارة العمل الخيري المؤسسي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,18 +16,12 @@
                 <div class="logo-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
                 </div>
-                <h1>إحسان</h1>
-                <p>المنصة الذكية لإدارة العمل الخيري وتحقيق الشفافية</p>
+                <h1>مرحبا بك في إحسان</h1>
+                <p>نظام تقييم الاستحقاق وإدارة المساعدات</p>
                 <form id="login-form">
-                    <div class="input-group">
-                        <label>اسم المستخدم</label>
-                        <input type="text" name="username" placeholder="مثال: admin" required>
-                    </div>
-                    <div class="input-group">
-                        <label>كلمة المرور</label>
-                        <input type="password" name="password" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn-primary">تسجيل الدخول الآمن</button>
+                    <div class="input-group"><label>اسم المستخدم</label><input type="text" name="username" required></div>
+                    <div class="input-group"><label>كلمة المرور</label><input type="password" name="password" required></div>
+                    <button type="submit" class="btn-primary" style="width:100%;">تسجيل الدخول</button>
                 </form>
             </div>
         </div>
@@ -36,147 +30,112 @@
     <!-- Dashboard Section -->
     <section id="dashboard-section" class="hidden-section">
         <div class="dashboard-layout">
-            <!-- Sidebar -->
-            <aside class="sidebar animate-slide-in">
+            <aside class="sidebar">
                 <div class="sidebar-header">
-                    <h2 style="color:var(--primary); font-weight:800; font-size:1.8rem;">إحسان</h2>
-                    <span id="user-role-badge" class="badge">Admin</span>
+                    <h2 style="color:var(--primary); font-weight:800;">إحسان</h2>
+                    <span id="user-role-badge" class="badge">Role</span>
                 </div>
                 <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active" data-target="overview-view">📊 لوحة التحكم</a>
-                    <a href="#" class="nav-item" data-target="beneficiaries-view">👨‍👩‍👧‍👦 المستفيدون</a>
-                    <a href="#" class="nav-item clerk-hidden" data-target="aid-types-view">📦 أنواع المساعدات</a>
-                    <a href="#" class="nav-item" data-target="distributions-view">🤝 سجل التوزيع</a>
-                    <a href="#" class="nav-item admin-only" data-target="users-view">⚙️ إدارة المستخدمين</a>
+                    <a href="#" class="nav-item active" data-target="overview-view">📊 الإحصائيات</a>
+                    
+                    <!-- Admin & Researcher: Application Entry -->
+                    <a href="#" class="nav-item role-researcher role-admin" data-target="entry-view">📝 إدخال البيانات</a>
+                    
+                    <!-- Researcher: Field Visit -->
+                    <a href="#" class="nav-item role-researcher role-admin" data-target="research-view">🏚️ الزيارات الميدانية</a>
+                    
+                    <!-- Sharia Committee: Fatwa -->
+                    <a href="#" class="nav-item role-sharia_committee role-admin" data-target="sharia-view">⚖️ اللجنة الشرعية</a>
+                    
+                    <!-- Finance: Disbursement -->
+                    <a href="#" class="nav-item role-finance role-admin" data-target="finance-view">💰 اللجنة المالية</a>
+                    
+                    <a href="#" class="nav-item role-admin" data-target="users-view">⚙️ إدارة الفريق</a>
                 </nav>
-                <div style="padding: 24px; border-top: 1px solid var(--border);">
-                    <div style="display:flex; align-items:center; margin-bottom:16px;">
-                        <div style="width:40px; height:40px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; margin-left:12px;" id="avatar-initial">م</div>
-                        <div>
-                            <div id="current-username" style="font-weight:700; font-size:0.9rem;">اسم المستخدم</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">متصل الآن</div>
-                        </div>
-                    </div>
-                    <button id="logout-btn" class="btn-logout" style="width:100%;">تسجيل الخروج</button>
+                <div style="padding:24px; border-top:1px solid var(--border);">
+                    <div id="current-username" style="font-weight:700; margin-bottom:8px;">User Name</div>
+                    <button id="logout-btn" class="btn-logout" style="width:100%;">خروج</button>
                 </div>
             </aside>
 
-            <!-- Main Content -->
             <main class="main-content">
                 <header class="topbar">
-                    <div style="width:400px; position:relative;">
-                        <input type="text" id="global-search-input" placeholder="ابحث بالاسم أو الرقم الوطني..." style="width:100%; padding:12px 40px 12px 12px; border-radius:12px; border:1px solid var(--border); outline:none;">
-                        <span style="position:absolute; right:12px; top:12px;">🔍</span>
-                    </div>
-                    <div style="display:flex; gap:16px; align-items:center;">
-                        <div style="font-weight:700; color:var(--text-muted); font-size:0.85rem;" id="current-date"></div>
-                        <button style="width:40px; height:40px; border-radius:12px; border:1px solid var(--border); background:white;">🔔</button>
-                    </div>
+                    <div style="width:400px;"><input type="text" id="global-search" placeholder="بحث بالرقم الوطني أو الاسم..." style="width:100%; padding:10px; border-radius:12px; border:1px solid var(--border);"></div>
+                    <div id="current-date" style="font-weight:700; color:var(--text-muted);"></div>
                 </header>
 
                 <div class="content-area">
-                    <!-- Overview View -->
+                    <!-- Overview -->
                     <div id="overview-view" class="view-panel active-panel">
-                        <h2 style="margin-bottom:32px;">مرحباً بك في لوحة التحكم</h2>
                         <div class="stats-grid">
-                            <div class="stat-card">
-                                <h3>إجمالي المستفيدين</h3>
-                                <p class="stat-value" id="stat-total-beneficiaries">0</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3>المساعدات الموزعة</h3>
-                                <p class="stat-value" id="stat-total-distributions">0</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3>فريق العمل</h3>
-                                <p class="stat-value" id="stat-total-staff">0</p>
-                            </div>
-                        </div>
-                        
-                        <div style="background:white; padding:32px; border-radius:var(--border-radius-lg); border:1px solid var(--border);">
-                           <h3 style="margin-bottom:20px;">آخر التحديثات</h3>
-                           <p style="color:var(--text-muted);">نظام إحسان يعمل الآن بأحدث معايير الحماية (SHA-256) وخوارزمية تقييم الاحتياج الذكية.</p>
+                            <div class="stat-card"><h3>إجمالي الطلبات</h3><p class="stat-value" id="s-total">0</p></div>
+                            <div class="stat-card"><h3>قيد البحث الميداني</h3><p class="stat-value" id="s-pending">0</p></div>
+                            <div class="stat-card"><h3>قيد الفتوى الشرعية</h3><p class="stat-value" id="s-sharia">0</p></div>
+                            <div class="stat-card"><h3>العائلات المعتمدة</h3><p class="stat-value" id="s-approved">0</p></div>
                         </div>
                     </div>
 
-                    <!-- Beneficiaries -->
-                    <div id="beneficiaries-view" class="view-panel hidden-panel">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
-                            <h2>إدارة المستفيدين</h2>
-                            <button class="btn-primary" id="btn-add-beneficiary">+ إضافة أسرة جديدة</button>
+                    <!-- Entry View -->
+                    <div id="entry-view" class="view-panel hidden-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                            <h2>تسجيل طلب استحقاق جديد</h2>
+                            <button class="btn-primary" onclick="document.getElementById('beneficiary-modal').classList.add('active')">+ إضافة عائلة</button>
                         </div>
                         <div class="table-container">
                             <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>الاسم</th>
-                                        <th>الرقم الوطني</th>
-                                        <th>أفراد الأسرة</th>
-                                        <th>درجة الاحتياج</th>
-                                        <th>إجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="beneficiaries-table-body"></tbody>
+                                <thead><tr><th>الاسم</th><th>الرقم الوطني</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                                <tbody id="entry-table-body"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- User Management (Admin Only) -->
-                    <div id="users-view" class="view-panel hidden-panel">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
-                            <h2>إدارة الفريق والصلاحيات</h2>
-                            <button class="btn-primary" id="btn-add-user">+ إضافة مستخدم جديد</button>
+                    <!-- Research View -->
+                    <div id="research-view" class="view-panel hidden-section">
+                        <h2>المهام الميدانية للباحث</h2>
+                        <p style="margin-bottom:24px; color:var(--text-muted);">قائمة العائلات التي تتطلب زيارة وتأكيد للسكن والظروف المعيشية.</p>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead><tr><th>العائلة</th><th>العنوان</th><th>درجة الاحتياج</th><th>إجراء</th></tr></thead>
+                                <tbody id="research-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sharia View -->
+                    <div id="sharia-view" class="view-panel hidden-section">
+                        <h2>طلبات الاعتماد الشرعي (الفتوى)</h2>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead><tr><th>العائلة</th><th>تقرير الباحث</th><th>درجة الاحتياج</th><th>القرار</th></tr></thead>
+                                <tbody id="sharia-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Finance View -->
+                    <div id="finance-view" class="view-panel hidden-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                            <h2>صرف المساعدات والإعانات</h2>
+                            <button class="btn-primary" id="btn-distribute">✨ تنفيذ صرف جديد</button>
                         </div>
                         <div class="table-container">
                             <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>الاسم</th>
-                                        <th>اسم المستخدم</th>
-                                        <th>الصلاحية</th>
-                                        <th>تاريخ الإنشاء</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>المستفيد</th><th>نوع المساعدة</th><th>التاريخ</th><th>الموظف</th></tr></thead>
+                                <tbody id="finance-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Users View -->
+                    <div id="users-view" class="view-panel hidden-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                            <h2>إدارة فريق العمل</h2>
+                            <button class="btn-primary" onclick="document.getElementById('user-modal').classList.add('active')">+ مستخدم جديد</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>الدور</th><th>تاريخ الانضمام</th></tr></thead>
                                 <tbody id="users-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Aid Types -->
-                    <div id="aid-types-view" class="view-panel hidden-panel">
-                        <h2 style="margin-bottom:32px;">أنواع المساعدات المتاحة</h2>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>اسم المساعدة</th>
-                                        <th>الفئة</th>
-                                        <th>القيمة</th>
-                                        <th>الجهة الممولة</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="aid-types-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Distributions -->
-                    <div id="distributions-view" class="view-panel hidden-panel">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
-                            <h2>سجل عمليات التوزيع</h2>
-                            <button class="btn-primary" id="btn-new-distribution">✨ تنفيذ توزيع جديد</button>
-                        </div>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>المستفيد (ID)</th>
-                                        <th>المساعدة (ID)</th>
-                                        <th>التاريخ</th>
-                                        <th>الموظف المسؤول</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="distributions-table-body"></tbody>
                             </table>
                         </div>
                     </div>
@@ -185,49 +144,59 @@
         </div>
     </section>
 
-    <!-- Modals (Add User, etc) -->
-    <div id="user-modal" class="modal">
-        <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:32px;">
-                <h3>إضافة مستخدم جديد للنظام</h3>
-                <button class="close-btn" data-close="user-modal">&times;</button>
-            </div>
-            <form id="add-user-form">
-                <div class="input-group"><label>الاسم الكامل</label><input type="text" name="name" required></div>
-                <div class="form-row">
-                    <div class="input-group"><label>اسم المستخدم</label><input type="text" name="username" required></div>
-                    <div class="input-group"><label>الصلاحية</label>
-                        <select name="role">
-                            <option value="clerk">موظف (Clerk)</option>
-                            <option value="manager">مدير (Manager)</option>
-                            <option value="admin">مسؤول (Admin)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="input-group"><label>كلمة المرور المؤقتة</label><input type="password" name="password" required></div>
-                <button type="submit" class="btn-primary" style="width:100%;">حفظ وإرسال الصلاحيات</button>
-            </form>
-        </div>
-    </div>
+    <!-- Modals -->
 
-    <!-- Other modals reuse previous structure but with refined CSS -->
+    <!-- Add Beneficiary -->
     <div id="beneficiary-modal" class="modal">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:24px;"><h3>تسجيل أسرة جديدة</h3><button class="close-btn" data-close="beneficiary-modal">&times;</button></div>
+            <h3>تسجيل أولي للعائلة</h3>
             <form id="add-beneficiary-form">
                 <div class="form-row">
                     <div class="input-group"><label>الاسم الرباعي</label><input type="text" name="name" required></div>
-                    <div class="input-group"><label>الرقم الوطني</label><input type="text" name="nationalId" maxlength="12" required></div>
+                    <div class="input-group"><label>الرقم الوطني (12 رقم)</label><input type="text" name="nationalId" pattern="\d{12}" maxlength="12" placeholder="X X X X X X X X X X X X" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="input-group"><label>عدد الأفراد</label><input type="number" name="size" min="1" required></div>
-                    <div class="input-group"><label>نوع الحالة</label><select name="caseType"><option value="needy">أسرة محتاجة</option><option value="orphan">أيتام</option><option value="widow">أرامل</option><option value="patient">حالة مرضية</option></select></div>
+                    <div class="input-group"><label>عدد الأفراد</label><input type="number" name="size" required></div>
+                    <div class="input-group"><label>نوع الحالة</label><select name="caseType"><option value="needy">فقير ومحتاج</option><option value="orphan">أيتام</option><option value="widow">أرامل</option><option value="patient">حالة مرضية</option></select></div>
                 </div>
+                <div class="input-group"><label>العنوان التفصيلي</label><input type="text" name="address" required></div>
                 <div class="form-row">
                     <div class="input-group"><label>الدخل الشهري</label><input type="number" name="income" required></div>
                     <div class="input-group"><label>الهاتف</label><input type="tel" name="phone" required></div>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%;">حفظ في قاعدة البيانات</button>
+                <button type="submit" class="btn-primary" style="width:100%;">إدراج الطلب بالمنظومة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Research Verification -->
+    <div id="research-modal" class="modal">
+        <div class="modal-content">
+            <h3>توثيق الزيارة الميدانية</h3>
+            <form id="verify-research-form">
+                <input type="hidden" name="bid">
+                <div class="input-group"><label>ملاحظات الباحث حول ظروف السكن والوضع الاجتماعي</label>
+                    <textarea name="notes" rows="6" style="width:100%; border-radius:12px; padding:12px; border:1px solid var(--border);" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">تأكيد الحالة وتحويلها للجنة الشرعية</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sharia Approval -->
+    <div id="sharia-modal" class="modal">
+        <div class="modal-content">
+            <h3>قرار اللجنة الشرعية</h3>
+            <p id="research-summary-text" style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:20px; font-size:0.9rem; border:1px solid var(--border);"></p>
+            <form id="approve-sharia-form">
+                <input type="hidden" name="bid">
+                <div class="input-group"><label>نص الفتوى أو قرار اللجنة</label>
+                    <textarea name="fatwa" rows="4" style="width:100%; border-radius:12px; padding:12px; border:1px solid var(--border);" required></textarea>
+                </div>
+                <div class="form-row" style="margin-bottom:20px;">
+                    <button type="button" class="btn-primary" style="background:var(--secondary);" onclick="submitSharia('approve')">اعتماد الاستحقاق ✅</button>
+                    <button type="button" class="btn-primary" style="background:var(--danger);" onclick="submitSharia('reject')">رفض الطلب ❌</button>
+                </div>
             </form>
         </div>
     </div>
@@ -235,12 +204,35 @@
     <!-- Distribution Modal -->
     <div id="distribution-modal" class="modal">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:24px;"><h3>تنفيذ توزيع ذكي</h3><button class="close-btn" data-close="distribution-modal">&times;</button></div>
-            <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.85rem;">سيقوم النظام تلقائياً بالتحقق من عدم تكرار المساعدة.</p>
+            <h3>صرف معونة / مساعدة</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;">ملاحظة: المساعدات المالية تتطلب عائلات 'معتمدة' فقط، بينما السلل الرمضانية تصرف للجميع.</p>
             <form id="new-distribution-form">
                 <div class="input-group"><label>اختر المستفيد</label><select name="beneficiaryId" id="select-beneficiary" required></select></div>
                 <div class="input-group"><label>نوع المساعدة</label><select name="aidId" id="select-aid" required></select></div>
-                <button type="submit" class="btn-primary" style="width:100%;">تأكيد الصرف</button>
+                <button type="submit" class="btn-primary" style="width:100%;">تأكيد الصرف المالي</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <h3>إضافة موظف/عضو لجنة</h3>
+            <form id="add-user-form">
+                <div class="input-group"><label>الاسم الكامل</label><input type="text" name="name" required></div>
+                <div class="form-row">
+                    <div class="input-group"><label>اسم المستخدم</label><input type="text" name="username" required></div>
+                    <div class="input-group"><label>الصلاحية</label>
+                        <select name="role">
+                            <option value="researcher">باحث اجتماعي</option>
+                            <option value="sharia_committee">اللجنة الشرعية</option>
+                            <option value="finance">اللجنة المالية</option>
+                            <option value="admin">آدمن النظام</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group"><label>كلمة المرور</label><input type="password" name="password" required></div>
+                <button type="submit" class="btn-primary" style="width:100%;">منح الصلاحية</button>
             </form>
         </div>
     </div>
@@ -248,7 +240,7 @@
     <!-- Search Modal -->
     <div id="search-modal" class="modal">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>نتائج البحث الذكي</h3><button class="close-btn" data-close="search-modal">&times;</button></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>نتائج البحث بالرقم الوطني</h3><button class="close-btn" data-close="search-modal">&times;</button></div>
             <div id="search-result-container"></div>
         </div>
     </div>
