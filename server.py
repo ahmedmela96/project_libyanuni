@@ -42,6 +42,8 @@ class EhsanHandler(http.server.SimpleHTTPRequestHandler):
                 self.handle_get_stats()
             elif self.path == '/api/users':
                 self.handle_get_users()
+            elif self.path == '/api/distributions_full':
+                self.handle_get_distributions_full()
             elif self.path.startswith('/api/search?'):
                 query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('q', [''])[0]
                 self.handle_search(query)
@@ -151,6 +153,23 @@ class EhsanHandler(http.server.SimpleHTTPRequestHandler):
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM beneficiaries ORDER BY need_score DESC")
         result = [dict(zip([c[0] for c in cursor.description], row)) for row in cursor.fetchall()]
+        conn.close()
+        self.send_json_response(result)
+
+    def handle_get_distributions_full(self):
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        # Join to get names
+        cursor.execute('''
+            SELECT d.id, b.name as b_name, a.name as a_name, d.distribution_date, u.name as u_name
+            FROM distributions d
+            JOIN beneficiaries b ON d.beneficiary_id = b.id
+            JOIN aid_types a ON d.aid_id = a.id
+            JOIN users u ON d.user_id = u.id
+            ORDER BY d.distribution_date DESC
+        ''')
+        rows = cursor.fetchall()
+        result = [dict(zip(['id', 'b_name', 'a_name', 'date', 'u_name'], row)) for row in rows]
         conn.close()
         self.send_json_response(result)
 
