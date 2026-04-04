@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الجمعيات الخيرية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Section -->
+    <section id="login-section" class="active-section">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="logo">
+                    <div class="icon-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                    </div>
+                    <h1>إحسان</h1>
+                    <p>نظام إدارة بيانات الجمعيات الخيرية</p>
+                </div>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="username">اسم المستخدم أو البريد الإلكتروني</label>
+                        <input type="text" id="username" placeholder="أدخل اسم المستخدم" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">كلمة المرور</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                            <button type="button" id="toggle-password" class="toggle-password-btn" style="display:flex; align-items:center;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="role-select">اختر الصلاحية (لغرض المحاكاة)</label>
+                        <select id="role-select">
+                            <option value="admin">مدير النظام (Admin)</option>
+                            <option value="manager">مدير الجمعية (Manager)</option>
+                            <option value="clerk">موظف إدخال بيانات (Clerk)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">تسجيل الدخول</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard-section" class="hidden-section">
+        <div class="dashboard-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>إحسان</h2>
+                    <span class="role-badge" id="user-role-badge">Admin</span>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#" class="nav-item active" data-target="overview-view">نظرة عامة</a></li>
+                        <li class="admin-only"><a href="#" class="nav-item" data-target="users-view">إدارة المستخدمين</a></li>
+                        <li class="manager-admin-only"><a href="#" class="nav-item" data-target="audit-view">سجل العمليات (Audit)</a></li>
+                        <li><a href="#" class="nav-item" data-target="data-entry-view">إدخال البيانات</a></li>
+                    </ul>
+                </nav>
+                <div class="sidebar-footer">
+                    <div class="user-info">
+                        <div class="avatar">م</div>
+                        <div class="user-details">
+                            <span id="current-username">محمد أحمد</span>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="btn-logout">تسجيل الخروج</button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="topbar">
+                    <div class="search-bar">
+                        <input type="text" id="global-search-input" placeholder="ابحث برقم العائلة (مثال: 1, 2, ...)">
+                    </div>
+                    <div class="actions">
+                        <button class="icon-btn">🔔</button>
+                    </div>
+                </header>
+
+                <div class="content-area">
+                    <!-- Overview View -->
+                    <div id="overview-view" class="view-panel active-panel">
+                        <div class="header-action">
+                            <h2 class="view-title">لوحة التحكم</h2>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>إجمالي المستفيدين</h3>
+                                <p class="stat-value">١,٢٥٤</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>المساعدات الموزعة</h3>
+                                <p class="stat-value">٥,٣٢٠</p>
+                            </div>
+                            <div class="stat-card manager-admin-only" style="display: none;">
+                                <h3>الموظفين النشطين</h3>
+                                <p class="stat-value">١٢</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Management View (Admin Only) -->
+                    <div id="users-view" class="view-panel hidden-panel">
+                        <div class="header-action">
+                            <h2 class="view-title">إدارة المستخدمين والصلاحيات</h2>
+                            <button class="btn-primary" onclick="alert('فتح نافذة إضافة مستخدم')">+ مستخدم جديد</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>الصلاحية</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>أحمد محمود</td>
+                                        <td>ahmed@ehsan.org</td>
+                                        <td><span class="badge manager-badge">مدير الجمعية</span></td>
+                                        <td><span class="status active">نشط</span></td>
+                                        <td>
+                                            <button class="btn-text">تعديل</button>
+                                            <button class="btn-text danger">حذف</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>سارة علي</td>
+                                        <td>sara@ehsan.org</td>
+                                        <td><span class="badge clerk-badge">موظف إدخال</span></td>
+                                        <td><span class="status inactive">غير نشط</span></td>
+                                        <td>
+                                            <button class="btn-text">تعديل</button>
+                                            <button class="btn-text danger">حذف</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Audit Log View -->
+                    <div id="audit-view" class="view-panel hidden-panel">
+                        <h2 class="view-title">سجل العمليات (Audit Log)</h2>
+                        <div class="filters">
+                            <select><option>جميع المستخدمين</option><option>أحمد محمود</option></select>
+                            <input type="date">
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>التاريخ والوقت</th>
+                                        <th>المستخدم</th>
+                                        <th>الإجراء</th>
+                                        <th>التفاصيل</th>
+                                        <th>IP Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-05-15 10:30 AM</td>
+                                        <td>أحمد محمود</td>
+                                        <td><span class="badge action-add">إضافة مستفيد</span></td>
+                                        <td>تمت إضافة المستفيد رقم 4521 لبرنامج الإغاثة.</td>
+                                        <td>192.168.1.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-05-15 09:15 AM</td>
+                                        <td>سارة علي</td>
+                                        <td><span class="badge action-edit">تعديل بيانات</span></td>
+                                        <td>تم تعديل حالة الطلب رقم 112 من "قيد المراجعة" إلى "معتمد".</td>
+                                        <td>192.168.1.12</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-05-14 02:45 PM</td>
+                                        <td>Admin</td>
+                                        <td><span class="badge action-system">تغيير صلاحية</span></td>
+                                        <td>تم ترقية حساب "سارة علي" إلى مدير جمعية.</td>
+                                        <td>10.0.0.1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Data Entry View -->
+                    <div id="data-entry-view" class="view-panel hidden-panel">
+                        <h2 class="view-title">إدخال بيانات المستفيدين / المساعدات</h2>
+                        <div class="form-card">
+                            <form id="data-entry-form">
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>اسم المستفيد</label>
+                                        <input type="text" placeholder="الاسم الرباعي">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>رقم الهوية</label>
+                                        <input type="text" placeholder="الرقم الوطني (12 رقم)" maxlength="12" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>نوع المساعدة</label>
+                                        <select>
+                                            <option>مالية</option>
+                                            <option>عينية (غذائية)</option>
+                                            <option>طبية</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>عدد أفراد الأسرة (المحتاجة)</label>
+                                        <input type="number" min="1" placeholder="أدخل العدد (مثال: 5)">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>رقم هاتف العائلة</label>
+                                        <input type="tel" placeholder="أدخل رقم الهاتف (10 أرقام)" maxlength="10" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary">حفظ البيانات</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="modal hidden-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-search-modal">&times;</span>
+            <div class="modal-header">
+                <h2>نتيجة البحث عن عائلة</h2>
+            </div>
+            <div class="search-result-body" id="search-result-container">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
