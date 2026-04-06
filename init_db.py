@@ -2,7 +2,6 @@ import sqlite3
 import os
 import hashlib
 
-# Database Path
 DB_PATH = 'ehsan.db'
 
 def hash_password(password):
@@ -10,101 +9,148 @@ def hash_password(password):
 
 def init_db():
     if os.path.exists(DB_PATH):
-        os.remove(DB_PATH) # Start fresh
+        os.remove(DB_PATH) # Fresh start for v2.2 to ensure new schema is clean
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # 1. Users Table (Enhanced Roles)
-    cursor.execute('''
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT CHECK(role IN ('admin', 'researcher', 'sharia_committee', 'finance')) NOT NULL,
-            name TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    # 1. Users Table (Core Auth & Roles)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL, -- admin, researcher, sharia_committee, finance
+        name TEXT NOT NULL,
+        status TEXT DEFAULT 'pending', -- pending, active, rejected
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
 
-    # 2. Beneficiaries Table (Workflow Driven)
-    # status: pending_research, pending_sharia, approved, rejected
-    cursor.execute('''
-        CREATE TABLE beneficiaries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            national_id TEXT UNIQUE NOT NULL, 
-            name TEXT NOT NULL,
-            family_size INTEGER NOT NULL,
-            case_type TEXT CHECK(case_type IN ('orphan', 'widow', 'needy', 'patient')) NOT NULL,
-            income DECIMAL(10,2) NOT NULL,
-            need_score REAL DEFAULT 0,
-            phone TEXT NOT NULL,
-            address TEXT,
-            status TEXT DEFAULT 'pending_research',
-            researcher_notes TEXT,
-            sharia_fatwa TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    # 2. Beneficiaries Table (Advanced v2.2)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS beneficiaries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        national_id TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        gender TEXT, -- male/female
+        family_status TEXT, -- married, widow, orphan...
+        family_status_other TEXT, -- For custom 'Other' status text
+        guardian TEXT, -- mother, father, brother...
+        family_size INTEGER,
+        income REAL,
+        occupation TEXT,
+        case_type TEXT, -- AR: نوع الحالة (e.g. Orphans, Widows...) assigned by researcher
+        phone TEXT,
+        address TEXT,
+        status TEXT DEFAULT 'pending_research', -- pending_research, pending_sharia, approved, rejected
+        researcher_notes TEXT,
+        sharia_fatwa TEXT,
+        need_score REAL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
 
-    # 3. Aid Types Table (Conditional Logic)
-    # requires_approval: 1 (Needs Sharia/Finance), 0 (Immediate/Ramadan Baskets)
-    cursor.execute('''
-        CREATE TABLE aid_types (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            category TEXT CHECK(category IN ('financial', 'food', 'medical')) NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            sponsor TEXT,
-            requires_approval INTEGER DEFAULT 1
-        )
-    ''')
+    # 3. Aid Types (Lookup for financial aid)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS aid_types (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL, -- e.g. Monthly, Emergency...
+        amount REAL NOT NULL
+    )''')
 
-    # 4. Distributions Table
-    cursor.execute('''
-        CREATE TABLE distributions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            beneficiary_id INTEGER NOT NULL,
-            aid_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            distribution_date DATE NOT NULL,
-            FOREIGN KEY (beneficiary_id) REFERENCES beneficiaries(id),
-            FOREIGN KEY (aid_id) REFERENCES aid_types(id),
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
+    # 4. Distributions (Financial Transactions)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS distributions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        beneficiary_id INTEGER,
+        aid_id INTEGER,
+        user_id INTEGER, -- Who processed it
+        amount REAL,
+        distribution_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(beneficiary_id) REFERENCES beneficiaries(id),
+        FOREIGN KEY(aid_id) REFERENCES aid_types(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )''')
 
-    # --- Insert Sample Roles ---
-    sample_users = [
-        ('admin', hash_password('admin123'), 'admin', 'الآدمن العام'),
-        ('researcher', hash_password('res123'), 'researcher', 'الباحث الميداني'),
-        ('sharia', hash_password('sharia123'), 'sharia_committee', 'اللجنة الشرعية'),
-        ('finance', hash_password('fin123'), 'finance', 'اللجنة المالية')
+    # 5. System Settings & Branding
+    cursor.execute('''CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+    )''')
+
+    # 6. Notifications System
+    cursor.execute('''CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        target_role TEXT, -- admin, researcher...
+        message TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # 7. Lookup Data (NEW v2.2 - Dynamic Lists for Admin)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS lookup_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT NOT NULL, -- family_status, case_type
+        label TEXT NOT NULL,
+        value TEXT NOT NULL UNIQUE
+    )''')
+
+    # 8. Audit Logs (NEW v2.2 - History/Timeline Tracking)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        beneficiary_id INTEGER,
+        action TEXT NOT NULL, -- Registration, Visit, Fatwa, Payment
+        notes TEXT,
+        user_id INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(beneficiary_id) REFERENCES beneficiaries(id)
+    )''')
+
+    # 9. Password Reset Requests (NEW v2.2)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS reset_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        status TEXT DEFAULT 'pending', -- pending, resolved
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )''')
+
+    # --- Initial Data Seeding ---
+
+    # Default Admin
+    cursor.execute("INSERT INTO users (username, password, role, name, status) VALUES (?, ?, ?, ?, ?)",
+                   ('admin', hash_password('admin123'), 'admin', 'المدير العام', 'active'))
+
+    # Default Settings
+    settings = [
+        ('org_name', 'منصة إحسان للأعمال الخيرية'),
+        ('tax_id', 'EH-2026-LY'),
+        ('org_motto', 'نحو عمل خيري مؤسسي ومنظم'),
+        ('org_phone1', '+218 91 0000000'),
+        ('org_phone2', '+218 92 0000000'),
+        ('org_type', 'جمعية أهلية ليبية')
     ]
-    cursor.executemany('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)', sample_users)
+    cursor.executemany("INSERT INTO settings (key, value) VALUES (?, ?)", settings)
 
-    # --- Insert Sample Aid Types ---
-    sample_aid = [
-        ('منحة مالية دورية (راتب)', 'financial', 1000, 'صندوق الزكاة', 1), # Requires Approval
-        ('سلة غذائية رمضانية (عامة)', 'food', 250, 'متبرع غامض', 0), # Immediate
-        ('أدوية أمراض مزمنة', 'medical', 400, 'الهلال الأحمر', 1) # Requires Approval
+    # Default Aid Types
+    aids = [
+        ('إعانة شهرية', 500),
+        ('إعانة مالية طارئة', 1000),
+        ('إعانة زواج', 5000),
+        ('إعانة ترميم بناء', 7000)
     ]
-    cursor.executemany('INSERT INTO aid_types (name, category, amount, sponsor, requires_approval) VALUES (?, ?, ?, ?, ?)', sample_aid)
+    cursor.executemany("INSERT INTO aid_types (name, amount) VALUES (?, ?)", aids)
 
-    # --- Insert Sample Beneficiaries (Diverse States) ---
-    sample_beneficiaries = [
-        ('119900012345', 'علي محمد بن ناصر', 6, 'orphan', 350.0, 3.2, '0911234567', 'طرابلس - حي الأندلس', 'pending_research', None, None),
-        ('219950067890', 'سارة محمود الخروفي', 4, 'widow', 150.0, 3.4, '0922345678', 'بنغازي - الكويفية', 'approved', 'تم التحقق من عجز الأسرة وتهالك السكن.', 'تستحق الصرف الشهري للأيتام والمنحة المالية.'),
-        ('120000011223', 'حسين عمر المبروك', 8, 'needy', 1200.0, 1.8, '0944556677', 'مصراتة - المركز', 'pending_sharia', 'الدخل ضعيف والأسرة كبيرة، يحتاج لفتوى لصرف المنحة الاستثنائية.', None)
+    # Initial Lookup Data (Dynamic Lists)
+    lookups = [
+        ('family_status', 'متزوج', 'married'),
+        ('family_status', 'أرمل', 'widow'),
+        ('family_status', 'مطلق', 'divorced'),
+        ('family_status', 'أعزب', 'single'),
+        ('case_type', 'أرامل', 'widows'),
+        ('case_type', 'أيتام', 'orphans'),
+        ('case_type', 'مرضى أمراض مزمنة', 'chronic_illness'),
+        ('case_type', 'منكوبي كوارث', 'disaster_relief')
     ]
-    cursor.executemany('''
-        INSERT INTO beneficiaries (national_id, name, family_size, case_type, income, need_score, phone, address, status, researcher_notes, sharia_fatwa)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', sample_beneficiaries)
+    cursor.executemany("INSERT INTO lookup_data (category, label, value) VALUES (?, ?, ?)", lookups)
 
     conn.commit()
     conn.close()
-    print("Multi-Role Institutional Database 'ehsan.db' has been initialized.")
+    print("Database Ehsan v2.2 Initialized Successfully!")
 
 if __name__ == '__main__':
     init_db()
