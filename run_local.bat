@@ -37,6 +37,8 @@ if errorlevel 1 goto :failed
 
 echo [5/5] Starting server on http://localhost:8000 ...
 echo Login: admin / admin123
+echo Opening the platform in your default browser...
+start "" http://localhost:8000
 %PY_CMD% server.py
 if errorlevel 1 goto :failed
 
