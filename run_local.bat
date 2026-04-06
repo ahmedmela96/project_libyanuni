@@ -23,17 +23,27 @@ if %errorlevel%==0 (
   )
 )
 
-echo [2/5] Initializing database ...
-%PY_CMD% init_db.py
-if errorlevel 1 goto :failed
+if exist "ehsan.db" (
+  echo [2/5] Existing database found (ehsan.db) - keeping your data.
+  set "FIRST_RUN=0"
+) else (
+  echo [2/5] No database found. Initializing new database ...
+  %PY_CMD% init_db.py
+  if errorlevel 1 goto :failed
+  set "FIRST_RUN=1"
+)
 
 echo [3/5] Applying DB migration ...
 %PY_CMD% migrate_db.py
 if errorlevel 1 goto :failed
 
-echo [4/5] Migrating passwords for current login flow ...
-%PY_CMD% migrate_passwords.py
-if errorlevel 1 goto :failed
+if "%FIRST_RUN%"=="1" (
+  echo [4/5] Migrating passwords for first-time login flow ...
+  %PY_CMD% migrate_passwords.py
+  if errorlevel 1 goto :failed
+) else (
+  echo [4/5] Skipping password migration to preserve existing accounts.
+)
 
 echo [5/5] Starting server on http://localhost:8000 ...
 echo Login: admin / admin123
